@@ -149,13 +149,12 @@ import {
   Strike,
   Underline,
   History,
-  Image
-  /* Mention */
+  Image,
+  Mention
 } from "tiptap-extensions";
 import Icon from "./components/Icon";
 import RegexMention from "./extensions/regexMention";
-import Mention from "./extensions/mention";
-import Suggestions from "./suggestions";
+import Suggestions from "./extensions/suggestions";
 import Fuse from "fuse.js";
 import tippy, { sticky } from "tippy.js";
 
@@ -180,18 +179,11 @@ export default {
       query: null,
       suggestionRange: null,
       filteredUsers: [],
+      filteredEmojis: [],
       navigatedUserIndex: 0,
+      navigatedEmojiIndex: 0,
       insertMention: () => {}
     };
-  },
-  computed: {
-    hasResults() {
-      return this.filteredUsers.length;
-    },
-
-    showSuggestions() {
-      return this.query || this.hasResults;
-    }
   },
   mounted() {
     this.editor = new Editor({
@@ -213,188 +205,207 @@ export default {
         new Underline(),
         new Image(),
         new History(),
-        new Mention({
+
+        /* new Mention({ */
+        /*   // a list of all suggested items */
+        /*   items: async () => { */
+        /*     await new Promise(resolve => { */
+        /*       setTimeout(resolve, 500); */
+        /*     }); */
+        /*     return [ */
+        /*       { id: 1, name: "Sven Adlung" }, */
+        /*       { id: 2, name: "Patrick Baber" }, */
+        /*       { id: 3, name: "Nick Hirche" }, */
+        /*       { id: 4, name: "Philip Isik" }, */
+        /*       { id: 5, name: "Timo Isik" }, */
+        /*       { id: 6, name: "Philipp Kühn" }, */
+        /*       { id: 7, name: "Hans Pagel" }, */
+        /*       { id: 8, name: "Sebastian Schrama" } */
+        /*     ]; */
+        /*   }, */
+        /*   // is called when a suggestion starts */
+        /*   onEnter: ({ items, query, range, command, virtualNode }) => { */
+        /*     this.query = query; */
+        /*     this.filteredUsers = items; */
+        /*     this.suggestionRange = range; */
+        /*     this.renderPopup(virtualNode); */
+        /*     // we save the command for inserting a selected mention */
+        /*     // this allows us to call it inside of our custom popup */
+        /*     // via keyboard navigation and on click */
+        /*     this.insertMention = command; */
+        /*   }, */
+        /*   // is called when a suggestion has changed */
+        /*   onChange: ({ items, query, range, virtualNode }) => { */
+        /*     this.query = query; */
+        /*     this.filteredUsers = items; */
+        /*     this.suggestionRange = range; */
+        /*     this.navigatedUserIndex = 0; */
+        /*     this.renderPopup(virtualNode); */
+        /*   }, */
+        /*   // is called when a suggestion is cancelled */
+        /*   onExit: () => { */
+        /*     // reset all saved values */
+        /*     this.query = null; */
+        /*     this.filteredUsers = []; */
+        /*     this.suggestionRange = null; */
+        /*     this.navigatedUserIndex = 0; */
+        /*     this.destroyPopup(); */
+        /*   }, */
+        /*   // is called on every keyDown event while a suggestion is active */
+        /*   onKeyDown: ({ event }) => { */
+        /*     if (event.key === "ArrowUp") { */
+        /*       this.upHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     if (event.key === "ArrowDown") { */
+        /*       this.downHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     if (event.key === "Enter") { */
+        /*       this.enterHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     return false; */
+        /*   }, */
+        /*   // is called when a suggestion has changed */
+        /*   // this function is optional because there is basic filtering built-in */
+        /*   // you can overwrite it if you prefer your own filtering */
+        /*   // in this example we use fuse.js with support for fuzzy search */
+        /*   onFilter: async (items, query) => { */
+        /*     if (!query) { */
+        /*       return items; */
+        /*     } */
+
+        /*     await new Promise(resolve => { */
+        /*       setTimeout(resolve, 500); */
+        /*     }); */
+
+        /*     const fuse = new Fuse(items, { */
+        /*       threshold: 0.2, */
+        /*       keys: ["name"] */
+        /*     }); */
+
+        /*     return fuse.search(query).map(item => item.item); */
+        /*   } */
+        /* }), */
+
+        /* new Mention({ */
+        /*   // a list of all suggested items */
+        /*   matcher: { */
+        /*     char: ":" */
+        /*   }, */
+        /*   items: async () => { */
+        /*     await new Promise(resolve => { */
+        /*       setTimeout(resolve, 500); */
+        /*     }); */
+        /*     return [ */
+        /*       { id: 1, name: "🥰" }, */
+        /*       { id: 2, name: "🤪" }, */
+        /*       { id: 3, name: "🤨" }, */
+        /*       { id: 4, name: "🧐" }, */
+        /*       { id: 5, name: "🤯" }, */
+        /*       { id: 6, name: "🥶" }, */
+        /*       { id: 7, name: "🐯" }, */
+        /*       { id: 8, name: "🙉" } */
+        /*     ]; */
+        /*   }, */
+        /*   // is called when a suggestion starts */
+        /*   onEnter: ({ items, query, range, command, virtualNode }) => { */
+        /*     this.query = query; */
+        /*     this.filteredEmojis = items; */
+        /*     this.suggestionRange = range; */
+        /*     this.renderPopup(virtualNode); */
+        /*     // we save the command for inserting a selected mention */
+        /*     // this allows us to call it inside of our custom popup */
+        /*     // via keyboard navigation and on click */
+        /*     this.insertMention = command; */
+        /*   }, */
+        /*   // is called when a suggestion has changed */
+        /*   onChange: ({ items, query, range, virtualNode }) => { */
+        /*     this.query = query; */
+        /*     this.filteredEmojis = items; */
+        /*     this.suggestionRange = range; */
+        /*     this.navigatedUserIndex = 0; */
+        /*     this.renderPopup(virtualNode); */
+        /*   }, */
+        /*   // is called when a suggestion is cancelled */
+        /*   onExit: () => { */
+        /*     // reset all saved values */
+        /*     this.query = null; */
+        /*     this.filteredEmojis = []; */
+        /*     this.suggestionRange = null; */
+        /*     this.navigatedUserIndex = 0; */
+        /*     this.destroyPopup(); */
+        /*   }, */
+        /*   // is called on every keyDown event while a suggestion is active */
+        /*   onKeyDown: ({ event }) => { */
+        /*     if (event.key === "ArrowUp") { */
+        /*       this.upEmojiHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     if (event.key === "ArrowDown") { */
+        /*       this.downEmojiHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     if (event.key === "Enter") { */
+        /*       this.enterEmojiHandler(); */
+        /*       return true; */
+        /*     } */
+
+        /*     return false; */
+        /*   }, */
+        /*   // is called when a suggestion has changed */
+        /*   // this function is optional because there is basic filtering built-in */
+        /*   // you can overwrite it if you prefer your own filtering */
+        /*   // in this example we use fuse.js with support for fuzzy search */
+        /*   onFilter: async (items, query) => { */
+        /*     if (!query) { */
+        /*       return items; */
+        /*     } */
+
+        /*     await new Promise(resolve => { */
+        /*       setTimeout(resolve, 500); */
+        /*     }); */
+
+        /*     const fuse = new Fuse(items, { */
+        /*       threshold: 0.2, */
+        /*       keys: ["name"] */
+        /*     }); */
+
+        /*     return fuse.search(query).map(item => item.item); */
+        /*   } */
+        /* }), */
+        new RegexMention({
           matcher: {
             char: "@"
           },
-          // a list of all suggested items
-          items: () => {
-            return [
-              { id: 1, name: "Sven Adlung" },
-              { id: 2, name: "Patrick Baber" },
-              { id: 3, name: "Nick Hirche" },
-              { id: 4, name: "Philip Isik" },
-              { id: 5, name: "Timo Isik" },
-              { id: 6, name: "Philipp Kühn" },
-              { id: 7, name: "Hans Pagel" },
-              { id: 8, name: "Sebastian Schrama" }
-            ];
-          },
-          // is called when a suggestion starts
-          onEnter: ({ items, query, range, command, virtualNode }) => {
-            this.query = query;
-            /* console.log("items"); */
-            /* console.log(items.then(r => console.log(r)); */
-            const itemss = items.then(r => {
-              console.log("r");
-              console.log(r);
-              this.filteredUsers = r;
-            });
-            this.suggestionRange = range;
-            this.renderPopup(virtualNode);
-            // we save the command for inserting a selected mention
-            // this allows us to call it inside of our custom popup
-            // via keyboard navigation and on click
-            this.insertMention = command;
-          },
-          // is called when a suggestion has changed
-          onChange: ({ items, query, range, virtualNode }) => {
-            this.query = query;
-            this.filteredUsers = items;
-            this.suggestionRange = range;
-            this.navigatedUserIndex = 0;
-            this.renderPopup(virtualNode);
-          },
-          // is called when a suggestion is cancelled
-          onExit: () => {
-            // reset all saved values
-            this.query = null;
-            this.filteredUsers = [];
-            this.suggestionRange = null;
-            this.navigatedUserIndex = 0;
-            this.destroyPopup();
-          },
-          // is called on every keyDown event while a suggestion is active
-          onKeyDown: ({ event }) => {
-            if (event.key === "ArrowUp") {
-              this.upHandler();
-              return true;
-            }
-
-            if (event.key === "ArrowDown") {
-              this.downHandler();
-              return true;
-            }
-
-            if (event.key === "Enter") {
-              this.enterHandler();
-              return true;
-            }
-
-            return false;
-          },
-          // is called when a suggestion has changed
-          // this function is optional because there is basic filtering built-in
-          // you can overwrite it if you prefer your own filtering
-          // in this example we use fuse.js with support for fuzzy search
-          onFilter: async (items, query) => {
-            if (!query) {
-              return items;
-            }
-
-            await new Promise(resolve => {
-              setTimeout(resolve, 500);
-            });
-
-            const fuse = new Fuse(items, {
-              threshold: 0.2,
-              keys: ["name"]
-            });
-
-            return fuse.search(query).map(item => item.item);
-          }
-        }),
-
-        new Mention({
-          matcher: {
-            char: ":"
-          },
-          // a list of all suggested items
-          items: () => {
-            return [
-              { id: 1, name: "🥰" },
-              { id: 2, name: "🤪" },
-              { id: 3, name: "🤨" },
-              { id: 4, name: "🧐" },
-              { id: 5, name: "🤯" },
-              { id: 6, name: "🥶" },
-              { id: 7, name: "🐯" },
-              { id: 8, name: "🙉" }
-            ];
-          },
-          // is called when a suggestion starts
-          onEnter: ({ items, query, range, command, virtualNode }) => {
-            this.query = query;
-            /* console.log("items"); */
-            /* console.log(items.then(r => console.log(r)); */
-            const itemss = items.then(r => {
-              console.log("r");
-              console.log(r);
-              this.filteredUsers = r;
-            });
-            this.suggestionRange = range;
-            this.renderPopup(virtualNode);
-            // we save the command for inserting a selected mention
-            // this allows us to call it inside of our custom popup
-            // via keyboard navigation and on click
-            this.insertMention = command;
-          },
-          // is called when a suggestion has changed
-          onChange: ({ items, query, range, virtualNode }) => {
-            this.query = query;
-            this.filteredUsers = items;
-            this.suggestionRange = range;
-            this.navigatedUserIndex = 0;
-            this.renderPopup(virtualNode);
-          },
-          // is called when a suggestion is cancelled
-          onExit: () => {
-            // reset all saved values
-            this.query = null;
-            this.filteredUsers = [];
-            this.suggestionRange = null;
-            this.navigatedUserIndex = 0;
-            this.destroyPopup();
-          },
-          // is called on every keyDown event while a suggestion is active
-          onKeyDown: ({ event }) => {
-            if (event.key === "ArrowUp") {
-              this.upHandler();
-              return true;
-            }
-
-            if (event.key === "ArrowDown") {
-              this.downHandler();
-              return true;
-            }
-
-            if (event.key === "Enter") {
-              this.enterHandler();
-              return true;
-            }
-
-            return false;
-          },
-          // is called when a suggestion has changed
-          // this function is optional because there is basic filtering built-in
-          // you can overwrite it if you prefer your own filtering
-          // in this example we use fuse.js with support for fuzzy search
-          onFilter: async (items, query) => {
-            if (!query) {
-              return items;
-            }
-
-            await new Promise(resolve => {
-              setTimeout(resolve, 500);
-            });
-
-            const fuse = new Fuse(items, {
-              threshold: 0.2,
-              keys: ["name"]
-            });
-
-            return fuse.search(query).map(item => item.item);
-          }
+          onEnter: () => {},
+          onChange: () => {},
+          onExit: () => {},
+          onKeyDown: () => {}
+          /* onEnter: async ({ items, query, range, command, virtualNode }) => { */
+          /*   const recipes = await this.getRecipes(query) */
+          /*   this.$refs.suggestions.onSuggestionStart({ */
+          /*     items: recipes.map((i, index) => ({ */
+          /*       id: index, */
+          /*       name: i.title, */
+          /*       recipeId: i.id, */
+          /*       type: 'recipe' */
+          /*     })), */
+          /*     query, */
+          /*     range, */
+          /*     command, */
+          /*     virtualNode */
+          /*   }) */
+          /* }, */
+          /* onChange: this.$refs.suggestions.onChange, */
+          /* onExit: this.$refs.suggestions.onExit, */
+          /* onKeyDown: this.$refs.suggestions.onKeyDown */
         }),
 
         new RegexMention({
@@ -448,6 +459,21 @@ export default {
       }
     });
   },
+
+  computed: {
+    hasResults() {
+      return this.filteredUsers.length;
+    },
+    hasEmojiResults() {
+      return this.filteredEmojis.length;
+    },
+    showSuggestions() {
+      return this.query || this.hasResults;
+    },
+    showEmojiSuggestions() {
+      return this.query || this.hasEmojiResults;
+    }
+  },
   methods: {
     async getSynonyms(word) {
       const res = await fetch(
@@ -483,13 +509,14 @@ export default {
         case "mention": {
           const { view, selection } = this.editor;
 
-          /* view.dispatch( */
-          /*   view.state.tr.insertText( */
-          /*     `${suggestion.name}`, */
-          /*     selection.from - (1 + this.suggestionQuery.length), */
-          /*     selection.from */
-          /*   ) */
-          /* ); */
+          view.dispatch(
+            view.state.tr.insertText(
+              `${suggestion.name}`,
+              selection.from - (1 + this.suggestionQuery.length),
+              selection.from
+            )
+          );
+          this.$router.push(suggestion.url);
           break;
         }
 
@@ -499,8 +526,7 @@ export default {
           view.dispatch(
             view.state.tr.insertText(
               `${suggestion.name}`,
-              selection.from - 4,
-              /* selection.from - (4 + this.suggestionQuery.length), */
+              selection.from - (2 + this.suggestionQuery.length),
               selection.from
             )
           );
@@ -513,8 +539,7 @@ export default {
           view.dispatch(
             view.state.tr.insertText(
               `${suggestion.name}`,
-              /* selection.from - (4 + this.suggestionQuery.length), */
-              selection.from - 4,
+              selection.from - (4 + this.suggestionQuery.length),
               selection.from
             )
           );
@@ -527,13 +552,17 @@ export default {
 
       this.$refs.synsuggestions.destroyPopup();
     },
-
     // navigate to the previous item
     // if it's the first item, navigate to the last one
     upHandler() {
       this.navigatedUserIndex =
         (this.navigatedUserIndex + this.filteredUsers.length - 1) %
         this.filteredUsers.length;
+    },
+    upEmojiHandler() {
+      this.navigatedEmojiIndex =
+        (this.navigatedEmojiIndex + this.filteredEmojis.length - 1) %
+        this.filteredEmojis.length;
     },
 
     // navigate to the next item
@@ -542,9 +571,20 @@ export default {
       this.navigatedUserIndex =
         (this.navigatedUserIndex + 1) % this.filteredUsers.length;
     },
+    downEmojiHandler() {
+      this.navigatedEmojiIndex =
+        (this.navigatedEmojiIndex + 1) % this.filteredEmojis.length;
+    },
 
     enterHandler() {
       const user = this.filteredUsers[this.navigatedUserIndex];
+
+      if (user) {
+        this.selectUser(user);
+      }
+    },
+    enterEmojiHandler() {
+      const user = this.filteredEmojis[this.navigatedEmojiIndex];
 
       if (user) {
         this.selectUser(user);
@@ -596,58 +636,10 @@ export default {
     }
   },
   beforeDestroy() {
-    if (this.editor) {
-      this.editor.destroy();
-    }
+    this.editor.destroy();
   }
 };
 </script>
 <style lang="scss">
 @import "./assets/sass/main.scss";
-@import "./assets/sass/suggestions.scss";
-.mention {
-  background: rgba(#000, 0.1);
-  color: rgba(#000, 0.6);
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 5px;
-  padding: 0.2rem 0.5rem;
-  white-space: nowrap;
-}
-.mention-suggestion {
-  color: rgba(#000, 0.6);
-}
-.suggestion-list {
-  padding: 0.2rem;
-  border: 2px solid rgba(#000, 0.1);
-  font-size: 0.8rem;
-  font-weight: bold;
-  &__no-results {
-    padding: 0.2rem 0.5rem;
-  }
-  &__item {
-    border-radius: 5px;
-    padding: 0.2rem 0.5rem;
-    margin-bottom: 0.2rem;
-    cursor: pointer;
-    &:last-child {
-      margin-bottom: 0;
-    }
-    &.is-selected,
-    &:hover {
-      background-color: rgba(#fff, 0.2);
-    }
-    &.is-empty {
-      opacity: 0.5;
-    }
-  }
-}
-.tippy-box[data-theme~="dark"] {
-  background-color: #000;
-  padding: 0;
-  font-size: 1rem;
-  text-align: inherit;
-  color: #fff;
-  border-radius: 5px;
-}
 </style>
