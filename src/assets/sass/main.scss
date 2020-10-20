@@ -1,4 +1,13 @@
-@import "./variables.scss";
+@import './variables.scss';
+@import './editor';
+@import './menubar';
+@import './menububble';
+
+// body {
+//   display: flex;
+//   justify-content: center;
+//   padding-top: 60px;
+// }
 
 * {
   margin: 0;
@@ -21,12 +30,12 @@
   box-sizing: border-box;
 }
 
-html {
-  font-family: "Inter";
-  font-size: 18px;
-  color: $color-black;
-  line-height: 1.5;
-}
+// html {
+//   font-family: 'Inter';
+//   font-size: 18px;
+//   color: $color-black;
+//   line-height: 1.5;
+// }
 
 body {
   margin: 0;
@@ -86,8 +95,3 @@ h3 {
   margin-bottom: 1.5rem;
   font-style: italic;
 }
-
-@import "./editor";
-@import "./menubar";
-@import "./menububble";
-// @import "./suggestions";

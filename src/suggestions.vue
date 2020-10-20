@@ -1,6 +1,5 @@
 <template>
   <div v-show="showSuggestions" ref="suggestions" class="suggestion-list">
-    <div class="category">Pages</div>
     <template v-if="hasResults">
       <div
         v-for="(suggestion, index) in filteredSuggestions"
@@ -13,13 +12,13 @@
       </div>
     </template>
     <div v-else class="suggestion-list__item is-empty">
-      No users found
+      Nothing found
     </div>
   </div>
 </template>
 
 <script>
-import tippy, { sticky } from "tippy.js";
+import tippy, { sticky } from 'tippy.js'
 
 export default {
   data() {
@@ -28,142 +27,127 @@ export default {
       suggestionQuery: null,
       suggestionRange: null,
       filteredSuggestions: [],
-      selectedIndex: 0
-    };
+      selectedIndex: 0,
+    }
   },
   computed: {
-    /* suggestionQuery: function(state) { */
-    /*   return state.suggestions.suggestionQuery; */
-    /* }, */
-    /* suggestionRange: function(state) { */
-    /*   return state.suggestions.suggestionRange; */
-    /* }, */
-    /* filteredSuggestions: function(state) { */
-    /*   return state.suggestions.filteredSuggestions; */
-    /* }, */
-    /* selectedIndex: function(state) { */
-    /*   return state.suggestions.selectedIndex; */
-    /* }, */
     hasResults() {
-      return this.filteredSuggestions.length;
+      return this.filteredSuggestions.length
     },
     showSuggestions() {
-      return this.suggestionQuery || this.hasResults;
-    }
+      return this.suggestionQuery || this.hasResults
+    },
   },
 
   beforeDestroy() {
-    this.destroyPopup();
+    this.destroyPopup()
   },
 
   methods: {
     onSuggestionStart({ items, query, range, virtualNode }) {
-      this.suggestionQuery = query;
-      this.filteredSuggestions = items;
-      this.suggestionRange = range;
-      this.renderPopup(virtualNode);
+      this.suggestionQuery = query
+      this.filteredSuggestions = items
+      this.suggestionRange = range
+      this.renderPopup(virtualNode)
     },
 
     onChange({ items, query, range, virtualNode }) {
-      this.suggestionQuery = query;
-      this.filteredSuggestions = items;
-      this.suggestionRange = range;
-      this.selectedIndex = 0;
-      this.renderPopup(virtualNode);
+      this.suggestionQuery = query
+      this.filteredSuggestions = items
+      this.suggestionRange = range
+      this.selectedIndex = 0
+      this.renderPopup(virtualNode)
     },
 
     onExit() {
-      this.suggestionQuery = null;
-      this.filteredSuggestions = [];
-      this.suggestionRange = null;
-      this.selectedIndex = 0;
-      this.items = [];
-      this.destroyPopup();
+      this.suggestionQuery = null
+      this.filteredSuggestions = []
+      this.suggestionRange = null
+      this.selectedIndex = 0
+      this.items = []
+      this.destroyPopup()
+    },
+
+    onDown() {
+      this.selectedIndex =
+        (this.selectedIndex + 1) % this.filteredSuggestions.length
+
+      if (this.selectedIndex > 5) {
+        this.$refs.suggestions.scrollTop += 36
+      }
+      if (this.selectedIndex === this.filteredSuggestions.length - 1) {
+        this.$refs.suggestions.scrollTop = 0
+      }
     },
 
     onUp() {
       this.selectedIndex =
         (this.selectedIndex + this.filteredSuggestions.length - 1) %
-        this.filteredSuggestions.length;
+        this.filteredSuggestions.length
+
+      if (this.selectedIndex > 5) {
+        this.$refs.suggestions.scrollTop -= 36
+      }
+      if (this.selectedIndex === this.filteredSuggestions.length - 1) {
+        this.$refs.suggestions.scrollTop = this.$refs.suggestions.scrollHeight
+      }
     },
-
-    onDown() {
-      this.selectedIndex =
-        (this.selectedIndex + 1) % this.filteredSuggestions.length;
-    },
-
-    /* onUp() { */
-    /*   this.$store.commit("suggestions/onUp"); */
-    /*   if (this.selectedIndex > 4) { */
-    /*     this.$refs.suggestions.scrollTop -= 50; */
-    /*   } */
-    /* }, */
-
-    /* onDown() { */
-    /*   this.$store.commit("suggestions/onDown"); */
-    /*   if (this.selectedIndex > 4) { */
-    /*     this.$refs.suggestions.scrollTop += 50; */
-    /*   } */
-    /*   if (this.selectedIndex === this.filteredSuggestions.length - 1) { */
-    /*     this.$refs.suggestions.scrollTop = 0; */
-    /*   } */
-    /* }, */
 
     onKeyDown({ event }) {
-      if (event.key === "ArrowUp") {
-        this.onUp();
-        return true;
+      if (event.key === 'ArrowUp') {
+        this.onUp()
+        return true
       }
 
-      if (event.key === "ArrowDown") {
-        this.onDown();
-        return true;
+      if (event.key === 'ArrowDown') {
+        this.onDown()
+        return true
       }
 
-      if (event.key === "Enter") {
-        event.preventDefault();
-        this.onEnter();
-        return true;
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        this.onEnter()
+        return true
       }
 
-      return false;
+      return false
     },
 
     onEnter() {
-      const suggestion = this.filteredSuggestions[this.selectedIndex];
+      const suggestion = this.filteredSuggestions[this.selectedIndex]
 
       if (suggestion) {
-        this.$attrs.select(suggestion);
+        this.$attrs.select(suggestion)
       }
     },
 
     renderPopup(node) {
       if (this.popup) {
-        return;
+        return
       }
 
-      this.popup = tippy(".page", {
+      this.popup = tippy('.page', {
         getReferenceClientRect: node.getBoundingClientRect,
         appendTo: () => document.body,
         interactive: true,
         sticky: true,
         plugins: [sticky],
         content: this.$refs.suggestions,
-        trigger: "mouseenter",
+        trigger: 'mouseenter',
         showOnCreate: true,
-        theme: "dark",
-        placement: "bottom-start",
+        theme: 'dark',
+        placement: 'bottom-start',
         inertia: true,
-        duration: [400, 200]
-      });
+        duration: [400, 200],
+      })
     },
 
     destroyPopup() {
       if (this.popup) {
         /* this.popup[0].destroy() */
-        this.popup = null;
+        this.popup = null
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
