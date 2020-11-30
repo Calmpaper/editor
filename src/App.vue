@@ -261,7 +261,7 @@ export default {
         }
       },
     })
-    this.editor.focus('end')
+    /* this.editor.focus('end') */
   },
   methods: {
     // Meaning like
